@@ -10,7 +10,7 @@ const PilgrimageOptions = () => {
             <div className="text-center mb-10">
                 <h1 className="text-3xl font-bold mb-2">Choose Your Sacred Journey</h1>
                 <p className="text-gray-200">
-                    Tailored planning for both Hajj and Umrah pilgrimages
+                    Tailored planning for both Hajji and Umrah pilgrimages
                 </p>
             </div>
 
