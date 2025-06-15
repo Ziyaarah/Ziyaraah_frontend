@@ -1,9 +1,13 @@
 import React from 'react'
+import Home from './pages/Home'
+import Ritual from './pages/Ritual'
+
 
 export default function App() {
   return (
     <div>
-      <h1 className='bg-red-600'>Hello World</h1>
+      <Home/>
+      <Ritual/>
 
     </div>
   )
