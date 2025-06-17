@@ -4,6 +4,11 @@ import { CalendarMinus2, BookOpen, Users, Star } from 'lucide-react';
 
 export default function QuickLinkCard() {
   return (
+    <div>
+      <div className='flex justify-between '>
+        <h2 className='text-xl font-bold p-2 flex-col  mt-14 ml-14'>Quick Links</h2>
+        <button className='mt-14 mr-14 px-8 py-4 text-green-700 font-bold flex  flex-col arounded-lg '> show all  → </button>
+      </div>
     <div className="p-8 grid grid-cols-4 gap-6">
 
       <div className="bg-gray-100 rounded-2xl shadow-lg p-6 flex flex-col items-center">
@@ -39,6 +44,7 @@ export default function QuickLinkCard() {
         </p>
       </div>
 
+    </div>
     </div>
   )
 }
