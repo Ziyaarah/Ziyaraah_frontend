@@ -6,7 +6,7 @@ import Mecca from '../assets/images/Mecca.jpeg';
 const PilgrimageOptions = () => {
     return (
         <>
-        <div className="bg-gradient-to-b from-green-700 to-green-400  p-10 text-white">
+        <div className="bg-[#038A62] p-10 text-white">
             <div className="text-center mb-10">
                 <h1 className="text-3xl font-bold mb-2">Choose Your Sacred Journey</h1>
                 <p className="text-gray-200">
