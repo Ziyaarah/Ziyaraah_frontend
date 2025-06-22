@@ -26,16 +26,3 @@ export default function Footer() {
 
 
 
-
-    // <div>
-
-{/* <div className="bg-gray-100 rounded-2xl shadow-lg p-6 flex flex-col items-center">
-        <div className="text-5xl bg-blue-600 text-white p-2 rounded-md"><Disc2 /></div>
-        <h1 className="text-xl font-semibold mt-4">Ziyaarah</h1>
-        <p className="text-gray-600 mt-2 text-center">
-           Spiritual Journey Planner
-        </p>
-      </div>
-
-    </div> */}
-

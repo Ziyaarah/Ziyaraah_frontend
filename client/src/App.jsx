@@ -9,12 +9,15 @@ import TripPlanner from './pages/TripPlanner'
 export default function App() {
   return (
     <div>
+
+
         <Home/>
       <Header/>
       <Sidebar/>
       <Signup/>
       <Sigin/>
       <TripPlanner/>
+
     </div>
   )
 }
