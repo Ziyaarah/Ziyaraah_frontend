@@ -4,6 +4,7 @@ import Sigin from './pages/Sigin'
 import Header from './component/Header/header'
 import Sidebar from './component/Sidebar/sidebar'
 import Home from './pages/Home'
+import TripPlanner from './pages/TripPlanner'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Sidebar/>
       <Signup/>
       <Sigin/>
+      <TripPlanner/>
     </div>
   )
 }
