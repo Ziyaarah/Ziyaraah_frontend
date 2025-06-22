@@ -6,9 +6,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo and subtitle */}
         <div className="flex items-center gap-3">
-          <div className="bg-green-600 rounded-lg flex items-center justify-center w-10 h-10">
+          <div className="bg-[#038A62] rounded-lg flex items-center justify-center w-10 h-10">
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <rect width="24" height="24" rx="6" fill="#10B981" />
+              {/* <rect width="24" height="24" rx="6" fill="#10B981" /> */}
               <circle cx="12" cy="12" r="6" fill="#fff" />
               <circle cx="12" cy="12" r="2" fill="#10B981" />
             </svg>
@@ -28,7 +28,7 @@ const Navbar = () => {
         </div>
         {/* Sign In button */}
         <div>
-          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition">Sign In</button>
+          <button className="bg-[#038A62] hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition">Sign In</button>
         </div>
       </div>
     </nav>
