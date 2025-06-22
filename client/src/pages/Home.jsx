@@ -5,18 +5,19 @@ import Footer from '../component/Footer'
 import PilgrimageOptions from '../component/pilgrimage'
 import Hero from '../component/Hero'
 import Navbar from '../component/Navbar'
+import ResourceLibrary from './ResourceLibrary'
 
 export default function Home() {
   return (
     <div>
-
-
-      <Navbar/>
-       <Hero/>
-      <Card/>
-       <PilgrimageOptions />
-        <QuickLinkCard/>
-       <Footer/>
+{/* 
+      // <ResourceLibrary/>
+      // <Navbar/>
+      //  <Hero/>
+      // <Card/>
+      //  <PilgrimageOptions />
+      //   <QuickLinkCard/>
+      //  <Footer/> */}
       
 
 
