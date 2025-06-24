@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { CircleCheckBig } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
+
+  const navigate = useNavigate();
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full bg-white shadow-lg rounded-xl p-8">
@@ -68,9 +73,9 @@ const SignUp = () => {
         </form>
         <p className="text-center text-gray-600 text-sm mt-4">
           Already have an account?
-          <a href="/signin" className="text-indigo-600 hover:underline ml-1">
+          <button  className="text-indigo-600 hover:underline ml-1" onClick={()=> navigate("/signin")}>
             Sign in
-          </a>
+          </button>
         </p>
       </div>
     </div>
