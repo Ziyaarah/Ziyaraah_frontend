@@ -10,18 +10,13 @@ import ResourceLibrary from './ResourceLibrary'
 export default function Home() {
   return (
     <div>
-{/* 
-      // <ResourceLibrary/>
-      // <Navbar/>
-      //  <Hero/>
-      // <Card/>
-      //  <PilgrimageOptions />
-      //   <QuickLinkCard/>
-      //  <Footer/> */}
       
-
-
-
+      <Navbar/>
+      <Hero/>
+       <Card/>
+       <PilgrimageOptions />
+       <QuickLinkCard/>
+      <Footer/>
     </div>
          
 

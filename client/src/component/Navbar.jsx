@@ -1,8 +1,11 @@
-
-
 import React from "react";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+ 
+  const navigate = useNavigate();
+
   return (
     <nav className="w-full bg-white py-3 px-4 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -22,15 +25,20 @@ const Navbar = () => {
         </div>
         {/* Navigation links */}
         <div className="hidden md:flex gap-8">
-          <a href="#" className="text-gray-700 font-medium hover:text-green-600 transition">Home</a>
-          <a href="#" className="text-gray-700 font-medium hover:text-green-600 transition">About Us</a>
-          <a href="#" className="text-gray-700 font-medium hover:text-green-600 transition">Prayers</a>
-          <a href="#" className="text-gray-700 font-medium hover:text-green-600 transition">Events</a>
-          <a href="#" className="text-gray-700 font-medium hover:text-green-600 transition">Contact Us</a>
+          <ul className="flex items-center gap-6">
+           <Link to="/" className="text-gray-700 font-medium hover:text-green-600 transition">Home</Link>
+           <Link to="/about" className="text-gray-700 font-medium hover:text-green-600 transition">About</Link>
+           <Link to="/prayers" className="text-gray-700 font-medium hover:text-green-600 transition">Prayers</Link>
+           <Link to="/events" className="text-gray-700 font-medium hover:text-green-600 transition">Events</Link>
+           <Link to="/contact" className="text-gray-700 font-medium hover:text-green-600 transition">Contact</Link>
+
+          </ul>
+        
         </div>
         {/* Sign In button */}
         <div>
-          <button className="bg-[#038A62] hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition">Sign In</button>
+          <button className="bg-[#038A62] hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition"
+           onClick={()=> navigate("/signup")}>Sign In</button>
         </div>
       </div>
     </nav>
