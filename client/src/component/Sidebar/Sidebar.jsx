@@ -32,6 +32,8 @@ export default function Sidebar() {
           <NavLink to="/resources" className={linkClass}>
             <FaBook /> Resources
           </NavLink>
+        
+        
         </nav>
       </div>
 

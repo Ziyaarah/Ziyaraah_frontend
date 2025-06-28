@@ -1,32 +1,53 @@
-import React from 'react'
-import { Routes, Route} from 'react-router-dom'
-import Signup from './pages/Signup'
-import Sigin from './pages/Sigin'
-import Home from './pages/Home'
-import TripPlanner from './pages/TripPlanner'
-import ResourceLibrary from './pages/ResourceLibrary'
-import Dashboard from './pages/Dashboard'
-import Layout from './component/Dashboard/Layout'
+import { Routes, Route } from "react-router-dom";
+import SignUp from "./pages/SignUp";
+import Sigin from "./pages/Sigin"; 
+import Home from "./pages/Home";
+import Navbar from "./component/Navbar";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import Sidebar from "./component/Sidebar/Sidebar";
+import ProtectedRoute from "./component/auth/ProtectRouter";
+import Layout from "./component/Dashboard/Layout";
 
-
-
-export default function App() {
+const App = () => {
   return (
-    <div>
- 
-       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/signin' element={<Sigin />} />
-        <Route path='/dashboard'  element={<Layout/>} />
-       </Routes>
-        
-       {/* <ResourceLibrary/>
-      <Sidebar/>
-      <Signup/>
-      <Sigin/>
-      <TripPlanner/> */}
+    <div className="min-h-screen bg-gray-50">
+     <Navbar/>
+      <main className="container mx-auto px-4 py-8">
 
+        <Routes>
+        <Route
+         path='/'
+         element={<Layout/>
+          
+         
+         }
+         />
+          <Route
+            path="/signin"
+            element={
+              <ProtectedRoute requireAuth={false}>
+                <Sigin/>
+              </ProtectedRoute>
+            }
+          />
+                  <Route
+                      path="/SignUp"
+                      element={
+                        <ProtectedRoute requireAuth={false}>
+                          <SignUp />
+                        </ProtectedRoute>
+                      }
+            />
+                      
+
+                      
+
+             </Routes>
+
+      </main>
     </div>
-  )
-}
+  );
+};
+
+export default App;

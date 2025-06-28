@@ -1,11 +1,39 @@
 import React, { useState } from "react";
 import { CircleCheckBig } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { zodResolver} from "@hookform/resolvers/zod";
+import { useForm } from 'react-hook-form';
+import {z} from 'zod'
+import { useDispatch,useSelector } from "react-redux";
+
+ 
 
 const SignUp = () => {
-  const [show, setShow] = useState(false);
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {state,error} =useSelector((state) =>state.auth)
+  
+  
+  const{
+   SignUp,
+  handleSubmit,
+  formState:{errors},
+  } =useForm({
+    defaultValues: {
+      email: ""
+    }
+  });
+
+  const onSignUp = async (data) => {
+    try {
+      await dispatch(SignUp(data)).unwrap();
+      console.log(register.date)
+      navigate('/Sigin');
+    } catch (error) {
+      console.log('something went wrong', error);
+    }
+  };
+
 
 
   return (
@@ -45,23 +73,23 @@ const SignUp = () => {
           </div>
           <div className="relative">
             <label className="block text-gray-700 mb-1">Password</label>
-            <input
+            {/* <input
               type={show ? "text" : "password"}
               className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-            />
+            /> */}
             <label className="block text-gray-700 mb-1">Confirm Password</label>
-            <input
+            {/* <input
               type={show ? "text" : "password"}
               className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-            />
+            /> */}
 
-            <button
+            {/* <button
               type="button"
               className="absolute top-9 right-2 text-gray-500"
               onClick={() => setShow((s) => !s)}
             >
               {show ? "🙈" : "👁️"}
-            </button>
+            </button> */}
           </div>
           <button
             type="submit"

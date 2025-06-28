@@ -1,8 +1,33 @@
 import React, { useState } from "react";
 import { CircleCheckBig } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch,useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { SiginSchema } from "../schema/authSchema";
 
-const SignIn = () => {
+   const Sigin = () => {
+  const  dispatch =  useDispatch();
+  const navigate = useNavigate();
+  const {status,error} = useselector((state)=>state.auth)
   const [showPass, setShowPass] = useState(false);
+  {
+    const {
+    SignUp ,
+    handleSubmit,
+     formState:{errors},
+  } =useForm({
+  resolver: zodResolver(SiginSchema),
+ });
+
+  const onSigin = async (date) => {
+    try{
+      await dispatch(Sigin(date )).unwrap();
+      navigate("/");
+    } catch(error){
+      console.log("failed to Sigin",error);
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-4">
@@ -65,5 +90,5 @@ const SignIn = () => {
     </div>
   );
 };
-
-export default SignIn;
+}
+export default Sigin;
