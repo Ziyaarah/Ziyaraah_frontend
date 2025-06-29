@@ -3,7 +3,7 @@ import { Heart, Book, Users } from 'lucide-react';
 
 const quickLinks = [
   {
-    icon: <Heart />,
+    // icon: <Heart />,
     title: 'Daily Prayers',
     subtitle: 'Track your spiritual practice',
     bg: 'bg-[#038A62]',

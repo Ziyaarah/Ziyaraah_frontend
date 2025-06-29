@@ -1,4 +1,4 @@
-// SummaryCards.jsx
+
 import { Calendar, BarChart2, CheckCircle, BookOpen } from 'lucide-react';
 
 const stats = [
