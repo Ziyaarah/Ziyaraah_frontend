@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { CalendarMinus2, BookOpen, Users, Star } from 'lucide-react';
 
 

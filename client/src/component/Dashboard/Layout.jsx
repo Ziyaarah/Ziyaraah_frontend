@@ -1,8 +1,13 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
-import Dashboard from '../../pages/Dashboard';
-import TripPlanner from '../../pages/TripPlanner';
+import Dashboard from '../../pages/Header';
+import Journey from '../../pages/Journey';
+import QuickLinks from '../../pages/QuickLink';
+import SummaryCards from '../../pages/SummaryCard';
+
+
+
 
 export default function Layout() {
   return (
@@ -12,7 +17,16 @@ export default function Layout() {
         <Outlet /> {/* 
         This is where child routes will render */}
        <Dashboard />
+       <SummaryCards/>
+       <Journey/>
+       <QuickLinks/>
+       
+     
+       
       </main>
     </div>
   )
+
 }
+
+
