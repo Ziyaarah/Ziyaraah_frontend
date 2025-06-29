@@ -5,7 +5,6 @@ import Home from "./pages/Home";
 import Navbar from "./component/Navbar";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import Sidebar from "./component/Sidebar/Sidebar";
 import ProtectedRoute from "./component/auth/ProtectRouter";
 import Layout from "./component/Dashboard/Layout";
 
