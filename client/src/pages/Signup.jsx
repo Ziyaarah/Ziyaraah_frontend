@@ -3,36 +3,35 @@ import { CircleCheckBig } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { zodResolver} from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
-import {z} from 'zod'
-import { useDispatch,useSelector } from "react-redux";
+import { authSchema } from "../schema/authSchema.js";
+import { useDispatch, useSelector } from "react-redux";
+import { registering } from "../Store/api/authSlice.js";
 
  
 
-const SignUp = () => {
-  const dispatch = useDispatch();
+export default function SignUp() {
+  
   const navigate = useNavigate();
-  const {state,error} =useSelector((state) =>state.auth)
-  
-  
-  const{
-   SignUp,
-  handleSubmit,
-  formState:{errors},
-  } =useForm({
-    defaultValues: {
-      email: ""
-    }
+
+  const { user, isLoading, error } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(authSchema),
   });
 
-  const onSignUp = async (data) => {
+  const onSubmit = async (data) => {
     try {
-      await dispatch(SignUp(data)).unwrap();
-      console.log(register.date)
-      navigate('/Sigin');
-    } catch (error) {
-      console.log('something went wrong', error);
+      const response = await dispatch(registering(data));
+      if (response.payload) {
+        navigate("/signin");
+      }
     }
-  };
+    catch (error) {
+      console.error("Registration failed:", error);
+    }
+  }
 
 
 
@@ -47,50 +46,51 @@ const SignUp = () => {
             <h2 className="text-xl font-semibold"> Get Started</h2>                                                                                   
           <p className="text-gray-500">Your sacred journey begins here</p>
         </div>
-        <form className="space-y-4">
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label className="block text-gray-700 mb-1">First Name</label>
-              <input
-                type="text"
-                className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-              />
-            </div>
-            <div className="w-1/2">
-              <label className="block text-gray-700 mb-1">Last Name</label>
-              <input
-                type="text"
-                className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-1">Email Address</label>
-            <input
-              type="email"
-              className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-700 mb-1">Password</label>
-            {/* <input
-              type={show ? "text" : "password"}
-              className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-            /> */}
-            <label className="block text-gray-700 mb-1">Confirm Password</label>
-            {/* <input
-              type={show ? "text" : "password"}
-              className="w-full bg-gray-100 rounded-md p-2 border border-gray-200 focus:bg-white focus:outline-none"
-            /> */}
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
 
-            {/* <button
-              type="button"
-              className="absolute top-9 right-2 text-gray-500"
-              onClick={() => setShow((s) => !s)}
-            >
-              {show ? "🙈" : "👁️"}
-            </button> */}
+          {/* name */}
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-gray-700">Name</label>
+            <input type="text" 
+              id="name"
+              name="name"
+              className="mt-1 p-2 border border-gray-300 rounded-md outline-none"
+              placeholder="Enter your name"
+              {...register("name", { required: "Name is required" })}
+            />
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
+
+          {/* email */}
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-gray-700">Email</label>
+            <input type="email" 
+              id="email"
+              name="email"
+              className="mt-1 p-2 border border-gray-300 rounded-md outline-none"
+              placeholder="Enter your email"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+          </div>
+
+          {/* password */}
+          <div className="flex flex-col">
+            <label htmlFor="password" className="text-gray-700">Password</label>
+            <input type="password" 
+              id="password"
+              name="password"
+              className="mt-1 p-2 border border-gray-300 rounded-md outline-none"
+              placeholder="Enter your password"
+              {...register("password", { required: "Password is required" })}
+            />
+            { /* Show password toggle */}
+ 
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+          </div>
+          
+          
+
           <button
             type="submit"
             className="w-full py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition"
@@ -98,6 +98,7 @@ const SignUp = () => {
           >
             Sign Up
           </button>
+
         </form>
         <p className="text-center text-gray-600 text-sm mt-4">
           Already have an account?
@@ -108,6 +109,8 @@ const SignUp = () => {
       </div>
     </div>
   );
-};
+  
+}
 
-export default SignUp;
+
+

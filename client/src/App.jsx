@@ -1,51 +1,23 @@
 import { Routes, Route } from "react-router-dom";
-import SignUp from "./pages/SignUp";
-import Sigin from "./pages/Sigin"; 
+import SignUp from "./pages/Signup";
+import SigIn from "./pages/SignIn";
 import Home from "./pages/Home";
-import Navbar from "./component/Navbar";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import ProtectedRoute from "./component/auth/ProtectRouter";
 import Layout from "./component/Dashboard/Layout";
+import TripPlanner from "./pages/TripPlanner";
+import Dashboard from "./pages/Dashboard";
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-     <Navbar/>
-      <main className="container mx-auto px-4 py-8">
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/signin" element={<SigIn />} />
 
-        <Routes>
-        <Route
-         path='/'
-         element={<Layout/>
-          
-         
-         }
-         />
-          <Route
-            path="/signin"
-            element={
-              <ProtectedRoute requireAuth={false}>
-                <Sigin/>
-              </ProtectedRoute>
-            }
-          />
-                  <Route
-                      path="/SignUp"
-                      element={
-                        <ProtectedRoute requireAuth={false}>
-                          <SignUp />
-                        </ProtectedRoute>
-                      }
-            />
-                      
-
-                      
-
-             </Routes>
-
-      </main>
-    </div>
+      <Route  element={<Layout />}>
+        <Route path="/dashboard" element={<Dashboard />} /> 
+        <Route path="/trip-planner" element={<TripPlanner />} /> 
+      </Route>
+    </Routes>
   );
 };
 
