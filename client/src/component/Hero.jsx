@@ -1,7 +1,12 @@
 import React from "react";
 import Macca from '../assets/images/Macca.jpg'
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
+
+
   return (
     <section className="w-full bg-white py-12 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
@@ -18,7 +23,7 @@ const HeroSection = () => {
             Plan your Hajj or Umrah with confidence using our comprehensive spiritual journey planner. Track rituals, access authentic resources, and prepare both spiritually and practically.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">Join Our Community</button>
+            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition" onClick={()=> navigate("/signup")}>Join Our Community</button>
             <button className="border border-gray-300 hover:bg-gray-100 text-gray-800 font-semibold px-6 py-3 rounded-lg transition">Watch Demo</button>
           </div>
         </div>

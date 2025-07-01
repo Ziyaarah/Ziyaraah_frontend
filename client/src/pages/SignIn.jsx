@@ -2,32 +2,17 @@ import React, { useState } from "react";
 import { CircleCheckBig } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch,useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { SiginSchema } from "../schema/authSchema";
+import { authSchema } from "../schema/authSchema.js";
 
-   const Sigin = () => {
-  const  dispatch =  useDispatch();
+  const Sigin = () => {
+  
   const navigate = useNavigate();
-  const {status,error} = useselector((state)=>state.auth)
-  const [showPass, setShowPass] = useState(false);
-  {
-    const {
-    SignUp ,
-    handleSubmit,
-     formState:{errors},
-  } =useForm({
-  resolver: zodResolver(SiginSchema),
- });
 
-  const onSigin = async (date) => {
-    try{
-      await dispatch(Sigin(date )).unwrap();
-      navigate("/");
-    } catch(error){
-      console.log("failed to Sigin",error);
-    }
-  }
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(authSchema),
+  });
+
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-4">
@@ -46,31 +31,45 @@ import { SiginSchema } from "../schema/authSchema";
         <h3 className="text-gray-800 font-bold text-lg mb-4">Welcome Back</h3>
         <p className="text-gray-600 mb-6 text-sm">Sign in to continue your spiritual journey</p>
 
-        <form className="space-y-4">
-          <div>
-            <label className="text-gray-700 text-sm mb-1 block">Email Address</label>
-            <input
-              type="email"
-              placeholder="amina@gmail.com"
-              className="w-full p-2 border border-gray-200 rounded-md bg-gray-100 focus:bg-white focus:outline-none"
+        <form className="space-y-4" onSubmit={handleSubmit()}>
+
+           {/* email */}
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-gray-700">Email</label>
+            <input type="email" 
+              id="email"
+              name="email"
+              className="mt-1 p-2 border border-gray-300 rounded-md outline-none"
+              placeholder="Enter your email"
+              {...register("email", { required: "Email is required" })}
             />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
           </div>
 
-          <div className="relative">
-            <label className="text-gray-700 text-sm mb-1 block">Password</label>
-            <input
-              type={showPass ? "text" : "password"}
-              placeholder="••••••••"
-              className="w-full p-2 border border-gray-200 rounded-md bg-gray-100 focus:bg-white focus:outline-none"
+          {/* password */}
+          <div className="flex flex-col">
+            <label htmlFor="password" className="text-gray-700">Password</label>
+            <input type="password" 
+              id="password"
+              name="password"
+              className="mt-1 p-2 border border-gray-300 rounded-md outline-none"
+              placeholder="Enter your password"
+              {...register("password", { required: "Password is required" })}
             />
-            <button
+            { /* Show password toggle */}
+ 
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+          </div>
+          
+         
+            {/* <button
               type="button"
               className="absolute right-2 top-9 text-gray-500"
               onClick={() => setShowPass((s) => !s)}
             >
               {showPass ? "🙈" : "👁️"}
-            </button>
-          </div>
+            </button> */}
+          
 
           <button
             type="submit"
@@ -90,5 +89,5 @@ import { SiginSchema } from "../schema/authSchema";
     </div>
   );
 };
-}
+
 export default Sigin;
