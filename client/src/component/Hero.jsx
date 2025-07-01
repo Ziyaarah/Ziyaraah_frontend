@@ -8,7 +8,7 @@ const HeroSection = () => {
 
 
   return (
-    <section className="w-full bg-white py-12 px-4">
+    <section className="w-full bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
         {/* Left Side */}
         <div className="flex-1 text-center md:text-left">
