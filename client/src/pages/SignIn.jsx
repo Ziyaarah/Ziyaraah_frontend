@@ -1,17 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CircleCheckBig } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from "react-router-dom";
 import { authSchema } from "../schema/authSchema.js";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAuth } from "../Store/api/authSlice.js";
+import { toast } from "react-toastify";
 
-  const Sigin = () => {
+export default function SignIn() {
+  
   
   const navigate = useNavigate();
+
+  const { user, loading, error } = useSelector((state) => state.auth);
+   
+  
+    const dispatch = useDispatch();
+  
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(authSchema),
   });
+
+
+
+
+  const handleLogin = async (data, e) => {
+  
+  console.log("🔍 Form data:", data); // ← ku dar xogta foomka
+  e?.preventDefault(); // Prevent default form submission
+
+  try {
+    const response = await dispatch(loginAuth(data));
+    console.log("🎯 Login response:", response);
+
+    if (response.payload) {
+      navigate("/dashboard");
+      console.log("✅ Login successful, navigating...");
+      toast.success("Login successful!"); // ← ku dar fariin guul leh
+    }
+  } catch (error) {
+    console.error("Login failed:", error); // ← haddii ay dhacdo
+  }
+};
+
+
 
 
   return (
@@ -31,7 +65,7 @@ import { authSchema } from "../schema/authSchema.js";
         <h3 className="text-gray-800 font-bold text-lg mb-4">Welcome Back</h3>
         <p className="text-gray-600 mb-6 text-sm">Sign in to continue your spiritual journey</p>
 
-        <form className="space-y-4" onSubmit={handleSubmit()}>
+        <form className="space-y-4" onSubmit={handleSubmit(handleLogin)}>
 
            {/* email */}
           <div className="flex flex-col">
@@ -61,15 +95,6 @@ import { authSchema } from "../schema/authSchema.js";
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
           </div>
           
-         
-            {/* <button
-              type="button"
-              className="absolute right-2 top-9 text-gray-500"
-              onClick={() => setShowPass((s) => !s)}
-            >
-              {showPass ? "🙈" : "👁️"}
-            </button> */}
-          
 
           <button
             type="submit"
@@ -90,4 +115,4 @@ import { authSchema } from "../schema/authSchema.js";
   );
 };
 
-export default Sigin;
+

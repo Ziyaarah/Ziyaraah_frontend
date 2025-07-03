@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { authSchema } from "../schema/authSchema.js";
 import { useDispatch, useSelector } from "react-redux";
 import { registering } from "../Store/api/authSlice.js";
+import { toast } from "react-toastify";
 
  
 
@@ -21,11 +22,13 @@ export default function SignUp() {
     resolver: zodResolver(authSchema),
   });
 
-  const onSubmit = async (data) => {
+  const handleRegister = async (data) => {
     try {
       const response = await dispatch(registering(data));
+        console.log("Login response:", response); // ← hubi inay timaado
       if (response.payload) {
         navigate("/signin");
+        toast.success("Registration successful! Please sign in."); // ← ku dar fariin guul leh
       }
     }
     catch (error) {
@@ -46,7 +49,7 @@ export default function SignUp() {
             <h2 className="text-xl font-semibold"> Get Started</h2>                                                                                   
           <p className="text-gray-500">Your sacred journey begins here</p>
         </div>
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-4" onSubmit={handleSubmit(handleRegister)}>
 
           {/* name */}
           <div className="flex flex-col">

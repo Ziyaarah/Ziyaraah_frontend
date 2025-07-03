@@ -1,34 +1,42 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { BASE_URL } from "../BaseUrl";
+import { apiFetch } from "./apiFetch.js";
 
 axios.defaults.withCredentials = true;
 
 // Async thunk for registering a user
 export const registering = createAsyncThunk(
-    "auth/registerUser",
-    async (userData, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(`${BASE_URL}/api/auth/register`, userData);
-            return response.data;
-            
-        } catch (error) {
-            return rejectWithValue(error.response.data);
-        }
+  "auth/registerUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const data = await apiFetch("/auth/register", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      });
+      return data;
+    } catch (error) {
+      console.error("❌ Register Error:", error);
+      return rejectWithValue(error.message);
     }
+  }
 );
 
 // Async thunk for logging in a user
-export const loggingIn = createAsyncThunk(
-    "auth/loginUser",
-    async (userData, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(`${BASE_URL}/api/auth/login`, userData);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response.data);
-        }
+export const loginAuth = createAsyncThunk(
+  "auth/loginUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const data = await apiFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      });
+      console.log("🔁 login API returned:", data); // ← ADD THIS
+      return data;
+    } catch (error) {
+      console.error("❌ Login Error:", error);
+      return rejectWithValue(error.message);
     }
+  }
 );
 
 const initialState = {
@@ -59,16 +67,17 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            .addCase(loggingIn.pending, (state) => {
+            .addCase(loginAuth.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loggingIn.fulfilled, (state, action) => {
-                state.loading = false;
-                state.user = action.payload.user;
-                state.isauthenticated = true;
+            .addCase(loginAuth.fulfilled, (state, action) => {
+               console.log("✅ login fulfilled payload:", action.payload);
+               state.loading = false;
+               state.user = action.payload.user;
+               state.isauthenticated = true;
             })
-            .addCase(loggingIn.rejected, (state, action) => {
+            .addCase(loginAuth.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });
