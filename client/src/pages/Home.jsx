@@ -6,12 +6,11 @@ import PilgrimageOptions from '../component/pilgrimage'
 import Hero from '../component/Hero'
 import Navbar from '../component/Navbar'
 import ResourceLibrary from './ResourceLibrary'
-import RitualTracker from './RitualTracker'
 
 export default function Home() {
   return (
     <div>
-{/*  
+ 
        <ResourceLibrary/>
        <Navbar/>
         <Hero/>
@@ -19,7 +18,7 @@ export default function Home() {
         <PilgrimageOptions />
          <QuickLinkCard/>
         <Footer/> 
-       */}
+      
 
 
 
