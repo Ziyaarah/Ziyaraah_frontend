@@ -103,7 +103,7 @@ const ResourceCard = ({ resource, featured }) => (
       <div className="text-gray-600 text-sm mb-2">{resource.desc}</div>
       {featured ? (
         <div className="flex justify-end">
-          <a href="#" className="text-blue-600 text-xs font-semibold hover:underline">View</a>
+          <a href="#" className="text-blue-600 text-xs font-semibold hover:underline">Viewkkkkkkkkkkkkkkkkkk</a>
         </div>
       ) : null}
     </div>
@@ -201,6 +201,7 @@ const ResourceLibrary = () => {
           <div className="flex flex-col gap-4">
             {allResources.map((res, i) => (
               <ResourceCard key={i} resource={res} />
+             
             ))}
           </div>
         </div>
