@@ -3,7 +3,7 @@ import { CircleCheckBig } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from "react-router-dom";
-import { authSchema } from "../schema/authSchema.js";
+import { SignInSchema } from "../schema/authSchema.js";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAuth } from "../Store/api/authSlice.js";
 import { toast } from "react-toastify";
@@ -20,7 +20,7 @@ export default function SignIn() {
   
 
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(authSchema),
+    resolver: zodResolver(SignInSchema),
   });
 
 
