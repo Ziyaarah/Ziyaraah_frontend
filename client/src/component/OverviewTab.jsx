@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../Store/BASE_URL";
+import { BASE_URL } from "../Store/BaseUrl";
 import {
   CheckCircle,
   Circle,

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../Store/BASE_URL";
+import { BASE_URL } from "../Store/BaseUrl";
 import { CheckCircle, MapPin, Info, Plus } from "lucide-react";
 
 export default function RitualsTab({ tripId }) {

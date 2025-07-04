@@ -1,6 +1,6 @@
 // store.js
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
-import authReducer from './api/authSlice.js'
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './api/authSlice.js';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
@@ -17,10 +17,11 @@ const rootReducer = combineReducers({
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-   reducer: persistedReducer,
-   middleware: getDefaultMiddleware({
-    serializableCheck: false, 
-  }),
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export const persistor = persistStore(store);
