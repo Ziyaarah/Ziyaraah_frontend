@@ -5,7 +5,6 @@ import {
   Trash,
   Clock
 } from "lucide-react";
-import classNames from "classnames";
 
 export default function NotesTab() {
   const [notes, setNotes] = useState([
@@ -195,7 +194,7 @@ Meeting Point: Hotel Lobby at 6 AM`
                         )}
                       </h3>
                       <span
-                        className={classNames(
+                        className={(
                           "text-xs font-medium px-2 py-1 mt-1 inline-block rounded-full",
                           {
                             "bg-green-100 text-green-800": note.tag === "Spiritual",

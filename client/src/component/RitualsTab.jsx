@@ -1,61 +1,74 @@
-// src/components/RitualsTab.jsx
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../Store/BASE_URL";
-import { CheckCircle, MapPin, Info, Plus } from "lucide-react";
+import { BASE_URL } from "../Store/BaseUrl";
+import { CheckCircle, MapPin, Plus } from "lucide-react";
 
 export default function RitualsTab({ tripId }) {
-  const [rituals, setRituals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedRitual, setSelectedRitual] = useState(null);
+  const token = localStorage.getItem("token");
 
-  const fetchRituals = async () => {
+  const [rituals, setRituals] = useState([]);
+  const [steps, setSteps] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [selectedStep, setSelectedStep] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Fetch rituals and their steps
+  const fetchRitualsAndSteps = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/api/trips/${tripId}/checkpoints`);
-      setRituals(
-        res.data.map((r) => ({
-          ...r,
-          id: r.id || r._id,
-          completed: r.completed || false
-        }))
-      );
+      const ritualRes = await axios.get(`${BASE_URL}/api/trips/${tripId}/rituals`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const ritualsData = ritualRes.data;
+      setRituals(ritualsData);
+
+      // Fetch steps for each ritual
+      const allSteps = {};
+      for (const ritual of ritualsData) {
+        const stepRes = await axios.get(
+          `${BASE_URL}/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        allSteps[ritual.id] = stepRes.data;
+      }
+
+      setSteps(allSteps);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load rituals");
+      console.error(err);
+      setError(err.response?.data?.error || "Failed to load rituals");
     } finally {
       setLoading(false);
     }
   };
 
-  const markRitualComplete = async (ritualId) => {
+  // Mark a step as complete
+  const completeStep = async (stepId) => {
     try {
-      await axios.put(`${BASE_URL}/api/checkpoints/${ritualId}/complete`);
-      setRituals((prev) =>
-        prev.map((r) => (r.id === ritualId ? { ...r, completed: true } : r))
+      await axios.put(
+        `${BASE_URL}/api/trips/${tripId}/rituals/steps`,
+        { stepId, completed: true },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSelectedRitual(null);
+
+      // Refresh rituals
+      await fetchRitualsAndSteps();
+      setSelectedStep(null);
     } catch (err) {
-      setError("Failed to complete ritual");
+      setError("Failed to mark step as completed");
     }
   };
 
   useEffect(() => {
-    if (tripId) fetchRituals();
+    if (tripId) fetchRitualsAndSteps();
   }, [tripId]);
 
-  const progress = Math.round(
-    (rituals.filter((r) => r.completed).length / rituals.length) * 100
-  );
+  const totalSteps = Object.values(steps).flat();
+  const completedSteps = totalSteps.filter((s) => s.completed).length;
+  const progress = totalSteps.length > 0 ? Math.round((completedSteps / totalSteps.length) * 100) : 0;
 
-  if (loading) {
-    return <div className="text-center p-4">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center p-4">{error}</div>;
-  }
+  if (loading) return <div className="p-4 text-center">Loading...</div>;
+  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
   return (
     <div className="space-y-6">
@@ -68,62 +81,50 @@ export default function RitualsTab({ tripId }) {
 
       <div className="bg-white p-4 rounded-lg shadow">
         <div className="mb-4">
-          <span className="block text-sm text-gray-600 font-medium mb-1">Ritual Progress</span>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="bg-green-500 h-3 rounded-full"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <span className="block text-sm font-medium text-gray-600 mb-1">Ritual Progress</span>
+          <div className="w-full bg-gray-200 h-3 rounded-full">
+            <div className="bg-green-600 h-3 rounded-full" style={{ width: `${progress}%` }} />
           </div>
           <span className="text-xs text-gray-500">{progress}% Completed</span>
         </div>
 
         {rituals.map((ritual) => (
-          <div
-            key={ritual.id}
-            className={`p-4 rounded-md border mb-3 ${
-              ritual.completed ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <input
-                type="radio"
-                name="ritual-select"
-                checked={selectedRitual === ritual.id}
-                onChange={() => setSelectedRitual(ritual.id)}
-                disabled={ritual.completed}
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-md font-semibold text-gray-800">
-                    {ritual.name || "Unnamed Ritual"}
-                  </h3>
-                  {ritual.tag && (
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
-                      {ritual.tag}
-                    </span>
-                  )}
-                  {ritual.completed && (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  )}
-                </div>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                  {ritual.description || "No description provided"}
-                </p>
-                {ritual.location && (
-                  <div className="text-sm text-gray-500 mt-1 flex items-center gap-1">
-                    <MapPin className="w-4 h-4" /> {ritual.location}
+          <div key={ritual.id} className="mb-6">
+            <h3 className="text-md font-semibold text-gray-800 mb-2">{ritual.title}</h3>
+            <p className="text-sm text-gray-600 mb-2">{ritual.description}</p>
+
+            {(steps[ritual.id] || []).map((step) => (
+              <div
+                key={step.id}
+                className={`p-3 mb-2 rounded border ${
+                  step.completed ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <input
+                    type="radio"
+                    name="ritual-step-select"
+                    checked={selectedStep === step.id}
+                    onChange={() => setSelectedStep(step.id)}
+                    disabled={step.completed}
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-sm font-semibold text-gray-800">{step.title}</h4>
+                      {step.completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                    </div>
+                    <span className="text-xs text-gray-500 capitalize">{step.type}</span>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         ))}
 
-        {selectedRitual && (
+        {selectedStep && (
           <div className="mt-4 flex justify-end">
             <button
-              onClick={() => markRitualComplete(selectedRitual)}
+              onClick={() => completeStep(selectedStep)}
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             >
               Mark as Completed

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../Store/BASE_URL";
+import { BASE_URL } from "../Store/BaseUrl";
 import {
   CheckCircle,
   Circle,
@@ -15,41 +15,63 @@ import {
 } from "lucide-react";
 
 export default function OverviewTab({ tripId }) {
-  const [checkpoints, setCheckpoints] = useState([]);
+  const [steps, setSteps] = useState([]);
+  const [rituals, setRituals] = useState([]);
 
   useEffect(() => {
-    const fetchCheckpoints = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/trips/${tripId}/checkpoints`);
-        if (Array.isArray(res.data)) {
-          setCheckpoints(res.data);
-        } else {
-          console.warn("Unexpected checkpoints response:", res.data);
-          setCheckpoints([]);
+        const token = localStorage.getItem("token");
+
+        // Fetch rituals
+        const ritualsRes = await axios.get(`${BASE_URL}/api/trips/${tripId}/rituals`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ritualsData = ritualsRes.data;
+        setRituals(ritualsData);
+
+        // Fetch ritual steps
+        const allSteps = [];
+
+        for (const ritual of ritualsData) {
+          const stepsRes = await axios.get(
+            `${BASE_URL}/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const ritualSteps = stepsRes.data.map((step) => ({
+            ...step,
+            ritualTitle: ritual.title,
+            location: ritual.location || null,
+          }));
+          allSteps.push(...ritualSteps);
         }
+
+        setSteps(allSteps);
       } catch (err) {
-        console.error("Error fetching checkpoints:", err);
+        console.error("Error loading overview data:", err);
       }
     };
-    fetchCheckpoints();
+
+    if (tripId) fetchData();
   }, [tripId]);
 
-  const completed = checkpoints.filter(c => c.completed).length;
-  const total = checkpoints.length;
-  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const completedSteps = steps.filter((step) => step.completed).length;
+  const totalSteps = steps.length;
+  const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+  const sacredRituals = rituals.map((r) => ({
+    ...r,
+    completed: steps.some((s) => s.ritual_id === r.id && s.completed),
+  }));
 
   const stages = ["Travel & Arrival", "Miqaat", "Tawaf", "Sa’i"];
-  const sacredRituals = checkpoints.filter(c => c.category === "Ritual");
-
   const stageProgress = (stageName) => {
-    const stageTasks = checkpoints.filter(c => c.stage === stageName);
-    const completedTasks = stageTasks.filter(t => t.completed).length;
+    const filtered = steps.filter((s) => s.title?.includes(stageName));
+    const completed = filtered.filter((s) => s.completed).length;
     return {
-      total: stageTasks.length,
-      completed: completedTasks,
-      percentage: stageTasks.length > 0
-        ? Math.round((completedTasks / stageTasks.length) * 100)
-        : 0
+      total: filtered.length,
+      completed,
+      percentage: filtered.length > 0 ? Math.round((completed / filtered.length) * 100) : 0,
     };
   };
 
@@ -63,8 +85,9 @@ export default function OverviewTab({ tripId }) {
             <span className="text-sm font-medium">Tasks Progress</span>
           </div>
           <p className="text-2xl font-bold">{progress}%</p>
-          <p className="text-sm text-gray-500">{completed}/{total} completed</p>
+          <p className="text-sm text-gray-500">{completedSteps}/{totalSteps} completed</p>
         </div>
+
         <div className="bg-white p-4 rounded-lg shadow flex flex-col gap-2">
           <div className="flex items-center gap-2 text-green-600">
             <Star className="w-5 h-5" />
@@ -75,6 +98,7 @@ export default function OverviewTab({ tripId }) {
           </p>
           <p className="text-sm text-gray-500">Sacred rituals done</p>
         </div>
+
         <div className="bg-white p-4 rounded-lg shadow flex flex-col gap-2">
           <div className="flex items-center gap-2 text-cyan-600">
             <CalendarDays className="w-5 h-5" />
@@ -83,6 +107,7 @@ export default function OverviewTab({ tripId }) {
           <p className="text-2xl font-bold">Started</p>
           <p className="text-sm text-gray-500">7 day journey</p>
         </div>
+
         <div className="bg-white p-4 rounded-lg shadow flex flex-col gap-2">
           <div className="flex items-center gap-2 text-purple-600">
             <Layers3 className="w-5 h-5" />
@@ -129,14 +154,14 @@ export default function OverviewTab({ tripId }) {
             <h2 className="text-lg font-semibold">Sacred Rituals</h2>
           </div>
           <ul className="space-y-2">
-            {sacredRituals.map(ritual => (
+            {sacredRituals.map((ritual) => (
               <li key={ritual.id} className="flex items-center gap-2">
                 {ritual.completed ? (
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 ) : (
                   <Circle className="w-5 h-5 text-gray-400" />
                 )}
-                <span className="text-sm font-medium">{ritual.name}</span>
+                <span className="text-sm font-medium">{ritual.title}</span>
                 {ritual.location && (
                   <span className="flex items-center text-xs text-gray-500 gap-1">
                     <MapPin className="w-3 h-3" />

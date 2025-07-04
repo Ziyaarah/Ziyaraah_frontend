@@ -1,6 +1,7 @@
 // src/components/TripHeader.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import { BASE_URL } from "../Store/BaseUrl";
 
 export default function TripHeader({ tripId }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,7 +23,7 @@ export default function TripHeader({ tripId }) {
 
     try {
       const response = await axios.put(
-        `https://ziyaarah.vercel.app/api/trips/${tripId}`,
+        `${BASE_URL}/api/trips/${tripId}`,
         {
           name: tripData.name,
           start_date: tripData.startDate,

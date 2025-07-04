@@ -3,9 +3,11 @@ import SignUp from "./pages/SignUp";
 import Home from "./pages/Home";
 import Layout from "./component/Dashboard/Layout";
 import TripPlanner from "./pages/TripPlanner";
+import TripDetails from './component/TripDetails';
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import { ToastContainer } from "react-toastify";
+
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
       <Route  element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} /> 
         <Route path="/tripPlanner" element={<TripPlanner />} /> 
+                <Route path="/trip/:tripId" element={<TripDetails/>} /> 
+
       </Route>
     </Routes>
     <ToastContainer/>
