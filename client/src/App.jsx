@@ -1,15 +1,19 @@
 import { Routes, Route } from "react-router-dom";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/Signup";
 import Home from "./pages/Home";
 import Layout from "./component/Dashboard/Layout";
 import TripPlanner from "./pages/TripPlanner";
-import TripDetails from './component/TripDetails';
+// import TripDetails from './component/TripDetails';
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import { ToastContainer } from "react-toastify";
+import PrivateRoute from "./component/PrivateRoute";
+
 
 
 const App = () => {
+
+
   return (
 <>
 <Routes>
@@ -17,12 +21,17 @@ const App = () => {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/signin" element={<SignIn/>} />
 
-      <Route  element={<Layout />}>
+        {/* Protected Routes */}
+
+       <Route  element={<PrivateRoute />}>
+       <Route  element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} /> 
         <Route path="/tripPlanner" element={<TripPlanner />} /> 
-                <Route path="/trip/:tripId" element={<TripDetails/>} /> 
-
+        {/* <Route path="/trip/:tripId" element={<TripDetails/>} />  */}
       </Route>
+       </Route>
+       
+
     </Routes>
     <ToastContainer/>
 </>
