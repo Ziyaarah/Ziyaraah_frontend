@@ -15,8 +15,10 @@ export default defineConfig({
   proxy: {
     '/api': {
       target: 'https://ziyaarah.vercel.app',
-      changeOrigin: true,
-      secure: false,
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+
     },
   },
 },

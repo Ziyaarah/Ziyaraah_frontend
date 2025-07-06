@@ -5,7 +5,7 @@ import { zodResolver} from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
 import { authSchema } from "../schema/authSchema.js";
 import { useDispatch, useSelector } from "react-redux";
-import { registering } from "../Store/api/authSlice.js";
+import { registerUser } from "../Store/api/auth/authSlice.js";
 import { toast } from "react-toastify";
 
  
@@ -22,13 +22,15 @@ export default function SignUp() {
     resolver: zodResolver(authSchema),
   });
 
+
+// handelRegister
   const handleRegister = async (data) => {
     try {
-      const response = await dispatch(registering(data));
-        console.log("Login response:", response); // ← hubi inay timaado
+      const response = await dispatch(registerUser(data));
+        console.log("Login response:", response); 
       if (response.payload) {
         navigate("/signin");
-        toast.success("Registration successful! Please sign in."); // ← ku dar fariin guul leh
+        toast.success("Registration successful! Please sign in."); 
       }
     }
     catch (error) {
