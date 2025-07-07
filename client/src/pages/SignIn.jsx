@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from "react-router-dom";
 import { SignInSchema } from "../schema/authSchema.js";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginAuth } from "../Store/api/authSlice.js";
+import { loginUser } from "../Store/api/auth/authSlice.js";
 import { toast } from "react-toastify";
 
 export default function SignIn() {
@@ -26,22 +27,24 @@ export default function SignIn() {
 
 
 
+
+
   const handleLogin = async (data, e) => {
   
   console.log("🔍 Form data:", data); // ← ku dar xogta foomka
   e?.preventDefault(); // Prevent default form submission
 
   try {
-    const response = await dispatch(loginAuth(data));
+    const response = await dispatch(loginUser(data));
     console.log("🎯 Login response:", response);
 
     if (response.payload) {
       navigate("/dashboard");
-      console.log("✅ Login successful, navigating...");
-      toast.success("Login successful!"); // ← ku dar fariin guul leh
+      toast.success("Login successful!"); 
     }
   } catch (error) {
-    console.error("Login failed:", error); // ← haddii ay dhacdo
+    toast.error("erorr login", error.message);
+    console.error("Login failed:", error); 
   }
 };
 
@@ -51,9 +54,9 @@ export default function SignIn() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <a href="/" className="text-gray-600 hover:underline text-sm mb-4 inline-block">
+        <Link to="/" className="text-gray-600 hover:underline text-sm mb-4 inline-block">
           ← Back to home
-        </a>
+        </Link>
 
         <div className="flex flex-col items-center mb-6">
           <div className="text-5xl bg-green-700 text-white p-2 rounded-md"> <CircleCheckBig /></div>

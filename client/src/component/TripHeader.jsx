@@ -1,20 +1,45 @@
 // src/components/TripHeader.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTripById } from "../Store/api/tripSlice";
 import axios from "axios";
 import { BASE_URL } from "../Store/BaseUrl";
+import { toast } from "react-toastify";
 
 export default function TripHeader({ tripId }) {
+  const dispatch = useDispatch();
+
+  // Select the trip from Redux store
+  const trip = useSelector((state) =>
+    state.trips.items.find((item) => item._id === tripId)
+  );
+
+  // Modal and form state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [tripData, setTripData] = useState({
-    name: "Umrah 2024 – Spring",
-    type: "Umrah",
-    startDate: "2024-03-14",
-    endDate: "2024-03-21"
-  });
+  const [form, setForm] = useState(null);
+
+  // Fetch trip if not in store
+  useEffect(() => {
+    if (!trip) {
+      dispatch(fetchTripById(tripId));
+    }
+  }, [tripId, trip, dispatch]);
+
+  // Initialize form when modal opens
+  useEffect(() => {
+    if (isEditModalOpen && trip) {
+      setForm({
+        name: trip.name || "",
+        type: trip.type || "Umrah",
+        startDate: trip.start_date || "",
+        endDate: trip.end_date || "",
+      });
+    }
+  }, [isEditModalOpen, trip]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTripData((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -25,33 +50,39 @@ export default function TripHeader({ tripId }) {
       const response = await axios.put(
         `${BASE_URL}/api/trips/${tripId}`,
         {
-          name: tripData.name,
-          start_date: tripData.startDate,
-          end_date: tripData.endDate
+          name: form.name,
+          type: form.type,
+          start_date: form.startDate,
+          end_date: form.endDate,
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      console.log("Trip updated successfully:", response.data);
+      toast.success("Trip updated successfully!");
       setIsEditModalOpen(false);
+      dispatch(fetchTripById(tripId)); // refresh trip info
     } catch (error) {
-      console.error("Failed to update trip:", error.response?.data || error.message);
-      alert("Failed to save trip changes. Please check your login and data.");
+      console.error("Failed to update trip:", error);
+      toast.error("Failed to save trip changes.");
     }
   };
+
+  if (!trip) {
+    return <p className="text-gray-500">Loading trip data...</p>;
+  }
 
   return (
     <>
       <div className="bg-green-600 text-white p-6 rounded-xl shadow-md space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">{tripData.name}</h1>
-            <p>{tripData.type}</p>
+            <h1 className="text-2xl font-bold">{trip.name}</h1>
+            <p>{trip.type}</p>
           </div>
 
           <button
@@ -65,11 +96,11 @@ export default function TripHeader({ tripId }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-green-700 p-3 rounded-lg">
             <p className="text-sm">Start Date</p>
-            <strong>{tripData.startDate}</strong>
+            <strong>{trip.start_date}</strong>
           </div>
           <div className="bg-green-700 p-3 rounded-lg">
             <p className="text-sm">End Date</p>
-            <strong>{tripData.endDate}</strong>
+            <strong>{trip.end_date}</strong>
           </div>
           <div className="bg-green-700 p-3 rounded-lg">
             <p className="text-sm">Ritual</p>
@@ -93,7 +124,7 @@ export default function TripHeader({ tripId }) {
       </div>
 
       {/* Edit Trip Modal */}
-      {isEditModalOpen && (
+      {isEditModalOpen && form && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <form onSubmit={handleSubmit} className="p-6">
@@ -104,7 +135,7 @@ export default function TripHeader({ tripId }) {
                 <input
                   type="text"
                   name="name"
-                  value={tripData.name}
+                  value={form.name}
                   onChange={handleInputChange}
                   className="w-full p-2 border rounded"
                   required
@@ -115,7 +146,7 @@ export default function TripHeader({ tripId }) {
                 <label className="block text-sm font-medium mb-1">Journey Type *</label>
                 <select
                   name="type"
-                  value={tripData.type}
+                  value={form.type}
                   onChange={handleInputChange}
                   className="w-full p-2 border rounded"
                   required
@@ -131,7 +162,7 @@ export default function TripHeader({ tripId }) {
                   <input
                     type="date"
                     name="startDate"
-                    value={tripData.startDate}
+                    value={form.startDate}
                     onChange={handleInputChange}
                     className="w-full p-2 border rounded"
                     required
@@ -142,7 +173,7 @@ export default function TripHeader({ tripId }) {
                   <input
                     type="date"
                     name="endDate"
-                    value={tripData.endDate}
+                    value={form.endDate}
                     onChange={handleInputChange}
                     className="w-full p-2 border rounded"
                     required
