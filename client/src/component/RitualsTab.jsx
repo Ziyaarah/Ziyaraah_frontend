@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle, MapPin, Plus } from "lucide-react";
+import { CheckCircle, Plus } from "lucide-react";
 import { apiFetch } from "../Store/api/auth/apiFetch";
 import axios from "axios";
 
 export default function RitualsTab({ tripId }) {
   const [rituals, setRituals] = useState([]);
-  console.log("ritualstate",rituals);
   const [steps, setSteps] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedStep, setSelectedStep] = useState(null);
@@ -15,54 +14,60 @@ export default function RitualsTab({ tripId }) {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [adding, setAdding] = useState(false);
-  
 
-  // Fetch rituals and steps
+  const [creatingStepFor, setCreatingStepFor] = useState(null);
+  const [newStepTitle, setNewStepTitle] = useState("");
+
   const fetchRitualsAndSteps = async () => {
-    console.log ("fetch retuals")
     try {
       setLoading(true);
       setError(null);
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-      const ritualsData = await axios.get(`/api/trips/${tripId}/rituals`,{headers: {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),    
+      const response = await axios.get(`/api/trips/with-rituals`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      const tripData = response.data.find((t) => t._id === tripId);
+      if (!tripData) {
+        setRituals([]);
+        setSteps({});
+        return;
       }
-  });
-  console.log("Rituals Tab",ritualsData.data)
 
-      setRituals(ritualsData.data);
+      const ritualsList = tripData.rituals.map((r) => r.ritual);
+      setRituals(ritualsList);
 
       const allSteps = {};
-      for (const ritual of ritualsData) {
-        const stepData = await apiFetch(
-          `/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`
-        );
-        allSteps[ritual.id] = stepData;
-      }
+      tripData.rituals.forEach((ritualObj) => {
+        allSteps[ritualObj.ritual._id] = ritualObj.steps;
+      });
       setSteps(allSteps);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to load rituals");
+      setError("Failed to load rituals");
+      setRituals([]);
+      setSteps({});
     } finally {
       setLoading(false);
     }
   };
 
-  // Complete a ritual step
   const completeStep = async (stepId) => {
     try {
       setError(null);
-  
+
       await apiFetch(`/api/trips/${tripId}/rituals/steps`, {
         method: "PUT",
         body: JSON.stringify({ stepId, completed: true }),
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
-  
+
       await fetchRitualsAndSteps();
       setSelectedStep(null);
     } catch (err) {
@@ -70,9 +75,7 @@ export default function RitualsTab({ tripId }) {
       setError("Failed to mark step as completed");
     }
   };
-  
 
-  // Add new ritual
   const addRitual = async () => {
     if (!newTitle.trim()) {
       setError("Title is required");
@@ -98,20 +101,52 @@ export default function RitualsTab({ tripId }) {
       await fetchRitualsAndSteps();
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to add ritual");
+      setError("Failed to add ritual");
     } finally {
       setAdding(false);
     }
   };
 
+  const addStep = async (ritualId) => {
+    if (!newStepTitle.trim()) {
+      setError("Step title is required");
+      return;
+    }
+
+    try {
+      setError(null);
+
+      await apiFetch(
+        `/api/trips/${tripId}/rituals/steps?ritualId=${ritualId}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            title: newStepTitle.trim(),
+            type: "action",
+            order: (steps[ritualId]?.length || 0) + 1,
+          }),
+        }
+      );
+
+      setNewStepTitle("");
+      setCreatingStepFor(null);
+      await fetchRitualsAndSteps();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to add step");
+    }
+  };
+
   useEffect(() => {
-    if (tripId) fetchRitualsAndSteps();
-  }, [tripId]);
+    if (tripId && !isAddOpen) fetchRitualsAndSteps();
+  }, [tripId, isAddOpen]);
 
   const totalSteps = Object.values(steps).flat();
   const completedSteps = totalSteps.filter((s) => s.completed).length;
   const progress =
-    totalSteps.length > 0 ? Math.round((completedSteps / totalSteps.length) * 100) : 0;
+    totalSteps.length > 0
+      ? Math.round((completedSteps / totalSteps.length) * 100)
+      : 0;
 
   if (loading) return <div className="p-4 text-center">Loading...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
@@ -166,7 +201,9 @@ export default function RitualsTab({ tripId }) {
 
       <div className="bg-white p-4 rounded-lg shadow">
         <div className="mb-4">
-          <span className="block text-sm font-medium text-gray-600 mb-1">Ritual Progress</span>
+          <span className="block text-sm font-medium text-gray-600 mb-1">
+            Ritual Progress
+          </span>
           <div className="w-full bg-gray-200 h-3 rounded-full">
             <div
               className="bg-green-600 h-3 rounded-full"
@@ -176,43 +213,108 @@ export default function RitualsTab({ tripId }) {
           <span className="text-xs text-gray-500">{progress}% Completed</span>
         </div>
 
-        {rituals.map((ritual) => (
-
-          <div key={ritual.id} className="mb-6">
-            <h3 className="text-md font-semibold text-gray-800 mb-2">{ritual.title}</h3>
-            <p className="text-sm text-gray-600 mb-2">{ritual.description}</p>
-
-            {(steps[ritual.id] || []).map((step) => (
-              <div
-                key={step.id}
-                className={`p-3 mb-2 rounded border ${
-                  step.completed
-                    ? "bg-green-50 border-green-200"
-                    : "bg-gray-50 border-gray-200"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    name="ritual-step-select"
-                    checked={selectedStep === step.id}
-                    onChange={() => setSelectedStep(step.id)}
-                    disabled={step.completed}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-sm font-semibold text-gray-800">{step.title}</h4>
-                      {step.completed && (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500 capitalize">{step.type}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {rituals.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No rituals found for this trip.</p>
+            <p className="text-sm mt-2">
+              Add your first ritual to get started!
+            </p>
           </div>
-        ))}
+        ) : (
+          rituals.map((ritual) => {
+            const ritualId = ritual._id || ritual.id;
+            return (
+              <div key={ritualId} className="mb-6">
+                <h3 className="text-md font-semibold text-gray-800 mb-2">
+                  {ritual.title}
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  {ritual.description}
+                </p>
+
+                {(steps[ritualId] || []).length === 0 ? (
+                  <div className="text-xs text-gray-400 mb-2">
+                    No steps for this ritual.
+                  </div>
+                ) : (
+                  steps[ritualId].map((step) => (
+                    <div
+                      key={step._id || step.id}
+                      className={`p-3 mb-2 rounded border ${
+                        step.completed
+                          ? "bg-green-50 border-green-200"
+                          : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="radio"
+                          name="ritual-step-select"
+                          checked={selectedStep === (step.id || step._id)}
+                          onChange={() =>
+                            setSelectedStep(step.id || step._id)
+                          }
+                          disabled={step.completed}
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm font-semibold text-gray-800">
+                              {step.title}
+                            </h4>
+                            {step.completed && (
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500 capitalize">
+                            {step.type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {creatingStepFor === ritualId ? (
+                  <div className="space-y-2 mt-2">
+                    <input
+                      type="text"
+                      value={newStepTitle}
+                      onChange={(e) => setNewStepTitle(e.target.value)}
+                      className="border p-2 w-full rounded"
+                      placeholder="Step title"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setCreatingStepFor(null)}
+                        className="text-sm px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => addStep(ritualId)}
+                        className="text-sm px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+                      >
+                        Add Step
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        setCreatingStepFor(ritualId);
+                      }}
+                      className="text-sm text-green-600 hover:underline"
+                    >
+                      + Add Step
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
 
         {selectedStep && (
           <div className="mt-4 flex justify-end">
