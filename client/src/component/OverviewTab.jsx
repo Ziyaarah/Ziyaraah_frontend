@@ -147,7 +147,7 @@ const allSteps = rituals.flatMap((r) => r.steps || []);
         <div className="bg-white p-4 rounded-lg shadow h-full">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-5 h-5 text-green-600" />
-            <h2 className="text-lg font-semibold">Sacred Ritual</h2>
+            <h2 className="text-lg font-semibold">Sacred Rituals</h2>
           </div>
           <ul className="space-y-2">
             {sacredRituals.map((ritual) => (

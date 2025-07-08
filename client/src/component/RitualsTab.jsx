@@ -154,7 +154,7 @@ export default function RitualsTab({ tripId }) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Sacred Rituals</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Sacred Ritual</h2>
         <button
           onClick={() => {
             setError(null);
