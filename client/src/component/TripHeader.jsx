@@ -1,41 +1,67 @@
-// src/components/TripHeader.jsx
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchTripById } from "../Store/api/tripSlice";
-import axios from "axios";
-import { BASE_URL } from "../Store/BaseUrl";
-import { toast } from "react-toastify";
+import { apiFetch } from "../Store/api/auth/apiFetch";
 
 export default function TripHeader({ tripId }) {
-  const dispatch = useDispatch();
+  const [trip, setTrip] = useState(null);
+  const [ritualCount, setRitualCount] = useState(0);
+  const [stageCount, setStageCount] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Select the trip from Redux store
-  const trip = useSelector((state) =>
-    state.trips.items.find((item) => item._id === tripId)
-  );
-
-  // Modal and form state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [form, setForm] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    type: "Umrah",
+    startDate: "",
+    endDate: "",
+  });
 
-  // Fetch trip if not in store
-  useEffect(() => {
-    if (!trip) {
-      dispatch(fetchTripById(tripId));
-    }
-  }, [tripId, trip, dispatch]);
+  const fetchTripDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  // Initialize form when modal opens
-  useEffect(() => {
-    if (isEditModalOpen && trip) {
+      const tripsWithRituals = await apiFetch(`/api/trips/with-rituals`);
+      const tripData = tripsWithRituals.find((t) => t._id === tripId);
+
+      if (!tripData) {
+        setError("Trip not found");
+        return;
+      }
+
+      setTrip(tripData);
       setForm({
-        name: trip.name || "",
-        type: trip.type || "Umrah",
-        startDate: trip.start_date || "",
-        endDate: trip.end_date || "",
+        name: tripData.name || "",
+        type: tripData.type || "Umrah",
+        startDate: tripData.start_date || "",
+        endDate: tripData.end_date || "",
       });
+
+      const rituals = tripData.rituals || [];
+      setRitualCount(rituals.length);
+
+      const allSteps = rituals.flatMap((r) => r.steps || []);
+      setStageCount(allSteps.length);
+
+      const completedSteps = allSteps.filter((s) => s.completed).length;
+      const percentage =
+        allSteps.length > 0
+          ? Math.round((completedSteps / allSteps.length) * 100)
+          : 0;
+
+      setProgress(percentage);
+    } catch (err) {
+      console.error("Failed to load trip data:", err);
+      setError("Failed to load trip data.");
+    } finally {
+      setLoading(false);
     }
-  }, [isEditModalOpen, trip]);
+  };
+
+  useEffect(() => {
+    if (tripId) fetchTripDetails();
+  }, [tripId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,47 +70,42 @@ export default function TripHeader({ tripId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-
     try {
-      const response = await axios.put(
-        `${BASE_URL}/api/trips/${tripId}`,
-        {
+      await apiFetch(`/api/trips/${tripId}`, {
+        method: "PUT",
+        body: JSON.stringify({
           name: form.name,
-          type: form.type,
           start_date: form.startDate,
           end_date: form.endDate,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      toast.success("Trip updated successfully!");
+        }),
+      });
       setIsEditModalOpen(false);
-      dispatch(fetchTripById(tripId)); // refresh trip info
-    } catch (error) {
-      console.error("Failed to update trip:", error);
-      toast.error("Failed to save trip changes.");
+      await fetchTripDetails();
+    } catch (err) {
+      console.error("Failed to update trip", err);
+      alert("Failed to update trip.");
     }
   };
 
-  if (!trip) {
-    return <p className="text-gray-500">Loading trip data...</p>;
+  if (loading) {
+    return (
+      <div className="bg-yellow-50 text-yellow-700 p-4 rounded mb-4">
+        Loading trip data...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-100 text-red-700 p-4 rounded mb-4">{error}</div>
+    );
   }
 
   return (
     <>
-      <div className="bg-green-600 text-white p-6 rounded-xl shadow-md space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">{trip.name}</h1>
-            <p>{trip.type}</p>
-          </div>
-
+      <div className="bg-green-600 text-white rounded-lg shadow p-6 space-y-4">
+        <div className="flex justify-between items-start">
+          <h1 className="text-2xl font-bold">{trip.name}</h1>
           <button
             onClick={() => setIsEditModalOpen(true)}
             className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition-colors"
@@ -93,56 +114,53 @@ export default function TripHeader({ tripId }) {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-green-700 p-3 rounded-lg">
-            <p className="text-sm">Start Date</p>
-            <strong>{trip.start_date}</strong>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-green-700 rounded p-3">
+            <p className="text-sm text-green-100">Start Date</p>
+            <p className="text-lg font-semibold">{trip.start_date}</p>
           </div>
-          <div className="bg-green-700 p-3 rounded-lg">
-            <p className="text-sm">End Date</p>
-            <strong>{trip.end_date}</strong>
+          <div className="bg-green-700 rounded p-3">
+            <p className="text-sm text-green-100">End Date</p>
+            <p className="text-lg font-semibold">{trip.end_date}</p>
           </div>
-          <div className="bg-green-700 p-3 rounded-lg">
-            <p className="text-sm">Ritual</p>
-            <strong>1</strong>
+          <div className="bg-green-700 rounded p-3">
+            <p className="text-sm text-green-100">Rituals</p>
+            <p className="text-lg font-semibold">{ritualCount}</p>
           </div>
-          <div className="bg-green-700 p-3 rounded-lg">
-            <p className="text-sm">Stages</p>
-            <strong>2</strong>
+          <div className="bg-green-700 rounded p-3">
+            <p className="text-sm text-green-100">Stages</p>
+            <p className="text-lg font-semibold">{stageCount}</p>
           </div>
         </div>
 
-        <div className="bg-green-700 p-4 rounded-lg space-y-1">
-          <div className="p-2 flex justify-between items-center">
-            <p className="text-sm font-medium">Overall Progress:</p>
-            <span className="text-sm font-medium">41%</span>
+        <div className="bg-green-700 rounded p-4">
+          <p className="text-sm font-semibold mb-1">Overall Progress:</p>
+          <div className="w-full bg-green-300 h-3 rounded-full">
+            <div
+              className="bg-white h-3 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <div className="bg-green-300 h-2 rounded-full overflow-hidden">
-            <div className="bg-white h-full rounded-full" style={{ width: "41%" }}></div>
-          </div>
+          <p className="text-right text-sm mt-1">{progress}%</p>
         </div>
       </div>
 
-      {/* Edit Trip Modal */}
-      {isEditModalOpen && form && (
+      {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <form onSubmit={handleSubmit} className="p-6">
-              <h2 className="text-xl font-bold mb-4">Edit Trip Information</h2>
+              <h2 className="text-xl font-bold mb-4">Edit Trip</h2>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Trip Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleInputChange}
+                className="w-full p-2 mb-4 border rounded"
+                placeholder="Trip Name"
+              />
 
-              <div className="mb-4">
+                            <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Journey Type *</label>
                 <select
                   name="type"
@@ -156,49 +174,42 @@ export default function TripHeader({ tripId }) {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Start Date *</label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={form.startDate}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">End Date *</label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={form.endDate}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="date"
+                  name="startDate"
+                  value={form.startDate}
+                  onChange={handleInputChange}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="date"
+                  name="endDate"
+                  value={form.endDate}
+                  onChange={handleInputChange}
+                  className="p-2 border rounded"
+                  required
+                />
               </div>
-
-              <div className="bg-blue-200 p-3 text-sm text-blue-600 mb-6">
+                            <div className="bg-blue-200 p-3 text-sm text-blue-600 mb-6">
                 <p><strong>Important Note</strong></p>
                 <p>Changing the trip type (Hajj ⇔ Umrah) may affect your rituals and stages. Some rituals are specific to each pilgrimage type.</p>
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-end gap-2 mt-6">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+                  className="px-4 py-2 border rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                  className="px-4 py-2 bg-green-600 text-white rounded"
                 >
-                  Save Changes
+                  Save
                 </button>
               </div>
             </form>

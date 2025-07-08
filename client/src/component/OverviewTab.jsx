@@ -26,8 +26,8 @@ export default function OverviewTab({ tripId }) {
         setRituals(ritualsData);
 
         // ✅ Fetch steps for each ritual
-        const allSteps = [];
-
+const allSteps = rituals.flatMap((r) => r.steps || []);
+      setStageCount(allSteps.length);
         for (const ritual of ritualsData) {
           const stepsData = await apiFetch(
             `/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`

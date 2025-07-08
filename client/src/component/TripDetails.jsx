@@ -61,7 +61,7 @@ export default function TripDetails() {
             </button>
 
             <div className="p-4 max-w-6xl mx-auto">
-                {trip && <TripHeader trip={trip} />}
+                {tripId && <TripHeader tripId={tripId} />}
                 <div className="flex space-x-4 mt-4 border-b pb-2">
                     {tabs.map((tab) => (
                         <button
