@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import Dashboard from '../../pages/Dashboard';
 import TripPlanner from '../../pages/TripPlanner';
+import ResourceLibrary from '../../pages/ResourceLibrary';
 
 
 

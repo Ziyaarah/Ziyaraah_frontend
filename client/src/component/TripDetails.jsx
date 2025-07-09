@@ -1,77 +1,83 @@
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import axios from "axios";
+// src/components/TripDetails.jsx
+import React, { useEffect, useState } from "react";
+import OverviewTab from "./OverviewTab";
+import RitualsTab from "./RitualsTab";
+import PackingTab from "./PackingTab";
+import NotesTab from "./NotesTab";
+import TripHeader from "./TripHeader";
+import axios from "axios";
+import { useParams, useNavigate } from 'react-router-dom';
 
 
-// export default function TripDetails() {
-//   // const { tripId } = useParams();
-//   // const [trip, setTrip] = useState(null);
-//   // const navigate = useNavigate();
+const tabs = ["Overview", "Rituals", "Packing", "Notes"];
 
-//   // useEffect(() => {
-//   //   const fetchTrip = async () => {
-//   //     try {
-//   //       const res = await axios.get(`${BASE_URL}/api/trips/${tripId}`);
-//   //       setTrip(res.data);
-//   //     } catch (err) {
-//   //       console.error("Failed to load trip", err);
-//   //       alert("Trip not found");
-//   //     }
-//   //   };
-//   //   fetchTrip();
-//   // }, [tripId]);
+export default function TripDetails() {
+    const [activeTab, setActiveTab] = useState("Overview");
+    const [trip, setTrip] = useState(null);
+    const { tripId } = useParams();
+    const navigate = useNavigate();
 
-//   // if (!trip) return <div className="p-4">Loading trip...</div>;
+    useEffect(() => {
+        const fetchTrip = async () => {
+            try {
+                const res = await axios.get(`/api/trips/${tripId}`);
+                setTrip(res.data);
+            } catch (error) {
+                console.error("Error fetching trip:", error);
+            }
+        };
+        fetchTrip();
+    }, [tripId]);
 
-//   return (
-//     <div className="max-w-6xl mx-auto p-6 space-y-6">
-//       <div className="bg-green-600 text-white p-6 rounded-xl shadow-md space-y-4">
-//         <div className="flex justify-between">
-//           <div>
-//             <h1 className="text-2xl font-bold">{trip.name}</h1>
-//             <p>{trip.type} Pilgrimage</p>
-//           </div>
-//           <button onClick={() => navigate(`/trips/${tripId}/edit`)} className="bg-white text-green-600 px-4 py-2 rounded hover:bg-green-100">Edit Trip</button>
-//         </div>
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case "Overview":
+                return <OverviewTab tripId={tripId} />;
+            case "Rituals":
+                return <RitualsTab tripId={tripId} />;
+            case "Packing":
+                return <PackingTab tripId={tripId} />;
+            case "Notes":
+                return <NotesTab tripId={tripId} />;
+            default:
+                return null;
+        }
+    };
+    const handleBack = () => {
+        // Try to go back in history, fallback to home if no history
+        window.history.state?.idx > 0 ? navigate(-1) : navigate('/');
+    };
 
-//         <div className="grid grid-cols-4 gap-4 text-center">
-//           <div>
-//             <p className="text-sm">Start Date</p>
-//             <strong>{trip.start_date}</strong>
-//           </div>
-//           <div>
-//             <p className="text-sm">End Date</p>
-//             <strong>{trip.end_date}</strong>
-//           </div>
-//           <div>
-//             <p className="text-sm">Rituals</p>
-//             <strong>{trip.rituals_count ?? 0}</strong>
-//           </div>
-//           <div>
-//             <p className="text-sm">Stages</p>
-//             <strong>{trip.stages_count ?? 0}</strong>
-//           </div>
-//         </div>
+    return (
+        <>
+            <button
+                onClick={handleBack}
+                className="mb-4 flex items-center gap-1 text-blue-600 hover:text-blue-800"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                </svg>
+                Back to Trips
+            </button>
 
-//         <div>
-//           <p className="text-sm mb-1">Overall Progress</p>
-//           <div className="w-full h-2 bg-green-300 rounded-full">
-//             <div className="h-full bg-white rounded-full" style={{ width: `${trip.progress || 0}%` }} />
-//           </div>
-//           <p className="text-right text-sm mt-1">{trip.progress || 0}%</p>
-//         </div>
-//       </div>
-
-//       {/* Tabs: Overview / Rituals / etc. */}
-//       <div className="flex space-x-4 border-b pb-2">
-//         {["Overview", "Rituals", "Stages", "Packing", "Notes"].map((tab) => (
-//           <button key={tab} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600">
-//             {tab}
-//           </button>
-//         ))}
-//       </div>
-
-//       {/* You can insert other components like OverviewTab, RitualsTab here */}
-//     </div>
-//   );
-// }
+            <div className="p-4 max-w-6xl mx-auto">
+                {tripId && <TripHeader tripId={tripId} />}
+                <div className="flex space-x-4 mt-4 border-b pb-2">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-4 py-2 font-medium ${activeTab === tab
+                                    ? "border-b-2 border-blue-500 text-blue-600"
+                                    : "text-gray-600"
+                                }`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+                <div className="mt-6">{renderTabContent()}</div>
+            </div>
+        </>
+    );
+}

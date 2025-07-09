@@ -60,14 +60,14 @@ export default function Sidebar() {
             Trip Planner
           </NavLink>
 
-          <NavLink to="/dashboard/rituals" className={linkClass}>
+          <NavLink to="/RetualTrips" className={linkClass}>
             <Activity size={18} />
-            Ritual Tracker
+            RitualTrips
           </NavLink>
 
-          <NavLink to="/dashboard/resources" className={linkClass}>
+          <NavLink to="/ResourceLibrary" className={linkClass}>
             <BookOpen size={18} />
-            Resources
+            ResourcesLibrary
           </NavLink>
         </nav>
       </div>
