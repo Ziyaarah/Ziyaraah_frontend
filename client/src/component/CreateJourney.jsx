@@ -1,60 +1,34 @@
+import React, { useState } from "react";
+import { createTrip } from "../Store/api/tripSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
-import React, { useState } from 'react';
-import axios from 'axios';
-import { BASE_URL } from '../Store/BaseUrl';
-
-const CreateJourney = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'Umrah',
-    startDate: '',
-    endDate: '',
+export default function CreateJourney({ onClose }) {
+  const dispatch = useDispatch();
+  const [form, setForm] = useState({
+    name: "",
+    type: "Umrah",
+    start_date: "",
+    end_date: "",
   });
-
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Authentication required. Please login.');
-        return;
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/api/trips`,
-        {
-          name: formData.name,
-          start_date: formData.startDate,
-          end_date: formData.endDate,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Successful creation
-      onSubmit({
-        ...response.data,
-        title: response.data.name,
-        type: formData.type, // UI only, not stored in backend
-        progress: 0,
-        status: "Active"
-      });
+      await dispatch(createTrip(form)).unwrap(); // use `.unwrap()` for error catching
+      toast.success("Trip created successfully!");
+      onClose();
     } catch (err) {
-      console.error("Error creating journey:", err);
-      setError(err.response?.data?.error || "Failed to create journey");
+      setError(err.message || "Failed to create trip");
     } finally {
       setLoading(false);
     }
@@ -78,11 +52,11 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
           <input
             type="text"
             name="name"
-            placeholder="e.g., Umrah 2024"
-            value={formData.name}
+            placeholder="e.g., Hajj 2025"
+            value={form.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -92,7 +66,7 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
           </label>
           <select
             name="type"
-            value={formData.type}
+            value={form.type}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           >
@@ -108,11 +82,11 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
             </label>
             <input
               type="date"
-              name="startDate"
-              value={formData.startDate}
+              name="start_date"
+              value={form.start_date}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
@@ -121,11 +95,11 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
             </label>
             <input
               type="date"
-              name="endDate"
-              value={formData.endDate}
+              name="end_date"
+              value={form.end_date}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
         </div>
@@ -133,7 +107,7 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
         <div className="pt-4 flex justify-end space-x-3">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
           >
             Cancel
@@ -141,14 +115,14 @@ const CreateJourney = ({ onSubmit, onCancel }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 ${loading ? 'opacity-50 cursor-wait' : ''}`}
+            className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 ${
+              loading ? "opacity-50 cursor-wait" : ""
+            }`}
           >
-            {loading ? 'Creating...' : 'Create Journey'}
+            {loading ? "Creating..." : "Create Journey"}
           </button>
         </div>
       </form>
     </div>
   );
-};
-
-export default CreateJourney;
+}

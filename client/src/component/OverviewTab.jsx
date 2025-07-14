@@ -1,6 +1,5 @@
+// Overview.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { BASE_URL } from "../Store/BaseUrl";
 import {
   CheckCircle,
   Circle,
@@ -13,6 +12,7 @@ import {
   BarChart2,
   Sparkles
 } from "lucide-react";
+import { apiFetch } from "../Store/api/auth/apiFetch";
 
 export default function OverviewTab({ tripId }) {
   const [steps, setSteps] = useState([]);
@@ -21,29 +21,26 @@ export default function OverviewTab({ tripId }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        // Fetch rituals
-        const ritualsRes = await axios.get(`${BASE_URL}/api/trips/${tripId}/rituals`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const ritualsData = ritualsRes.data;
+        // ✅ Fetch rituals
+        const ritualsData = await apiFetch(`/api/trips/${tripId}/rituals`);
+        console.log ("Rituals Data",ritualsData)
         setRituals(ritualsData);
 
-        // Fetch ritual steps
-        const allSteps = [];
-
+        // ✅ Fetch steps for each ritual
+const allSteps = rituals.flatMap((r) => r.steps || []);
+      setStageCount(allSteps.length);
         for (const ritual of ritualsData) {
-          const stepsRes = await axios.get(
-            `${BASE_URL}/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
+          const stepsData = await apiFetch(
+            `/api/trips/${tripId}/rituals/steps?ritualId=${ritual.id}`
           );
-          const ritualSteps = stepsRes.data.map((step) => ({
+
+          const enrichedSteps = stepsData.map((step) => ({
             ...step,
             ritualTitle: ritual.title,
             location: ritual.location || null,
           }));
-          allSteps.push(...ritualSteps);
+
+          allSteps.push(...enrichedSteps);
         }
 
         setSteps(allSteps);

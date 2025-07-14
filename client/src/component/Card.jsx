@@ -6,7 +6,7 @@ import { Users } from 'lucide-react';
 
 
 export default function Card() {
-  return (
+  return(
  <div className='mb-14'>
     <div className="p-8 grid grid-cols-1 items-center flex-col text-center font-semibold ">
     <h1 className='text-2xl font-bold mb-2 '>Everything You Need For Your Sacred Journey</h1>
