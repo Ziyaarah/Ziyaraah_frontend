@@ -1,12 +1,5 @@
 import React from "react";
-import Arrow from '../assets/images/Arrow.png'
-
-const sidebarLinks = [
-  { label: "Dashboard", icon: "🏠" },
-  { label: "Trip Planner", icon: "🗺️" },
-  { label: "Ritual Tracker", icon: "✅" },
-  { label: "Resources", icon: "📚", active: true },
-];
+import Arrow from '../assets/images/Arrow.png';
 
 const featuredResources = [
   {
@@ -86,12 +79,14 @@ const allResources = [
 ];
 
 const ResourceTag = ({ children, color }) => (
-  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${color || "bg-gray-100 text-gray-700"} mr-1`}>{children}</span>
+  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${color || "bg-gray-100 text-gray-700"} mr-1 mb-1 inline-block`}>
+    {children}
+  </span>
 );
 
 const ResourceCard = ({ resource, featured }) => (
-  <div className={`bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex flex-col ${featured ? "h-full" : "md:flex-row md:items-center"}`}>
-    <div className="flex items-center mb-2 md:mb-0">
+  <div className={`bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex flex-col sm:flex-col ${featured ? "h-full" : "md:flex-row md:items-center"}`}>
+    <div className="flex flex-wrap items-center mb-2 md:mb-0">
       {resource.type === "Video" && <ResourceTag color="bg-red-100 text-red-600">Video</ResourceTag>}
       {resource.type === "Pdf" && <ResourceTag color="bg-blue-100 text-blue-600">Pdf</ResourceTag>}
       {resource.type === "Link" && <ResourceTag color="bg-green-100 text-green-600">Link</ResourceTag>}
@@ -101,60 +96,66 @@ const ResourceCard = ({ resource, featured }) => (
     <div className="flex-1">
       <div className="font-semibold text-gray-900 text-base mb-1">{resource.title}</div>
       <div className="text-gray-600 text-sm mb-2">{resource.desc}</div>
-      {featured ? (
+      {featured && (
         <div className="flex justify-end">
           <a href="#" className="text-blue-600 text-xs font-semibold hover:underline">View</a>
         </div>
-      ) : null}
+      )}
     </div>
     {!featured && (
-      <div className="md:ml-auto mt-2 md:mt-0">
-  <a
-    href="#"
-    className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1 hover:bg-blue-700 transition"
-  >
-    Access
-    <img src={Arrow} alt="arrow" className="w-4 h-4 ml-1"/>
-  </a>
-</div>
-
+      <div className="md:ml-auto mt-2 md:mt-0 w-fit">
+        <a
+          href="#"
+          className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1 hover:bg-blue-700 transition"
+        >
+          Access
+          <img src={Arrow} alt="arrow" className="w-4 h-4 ml-1" />
+        </a>
+      </div>
     )}
   </div>
 );
 
 const ResourceLibrary = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      
-      {/* Main Content */}
-      <main className="flex-1 p-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 w-full">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Resource Library</h1>
-          <div className="text-gray-600 text-sm mb-4">Access authentic Islamic resources for your spiritual journey</div>
+          <p className="text-gray-600 text-sm mb-4">Access authentic Islamic resources for your spiritual journey</p>
+
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-3 md:items-center bg-white p-4 rounded-xl border border-gray-200 mb-6">
-            <input type="text" placeholder="Search resources..." className="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200" />
-            <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center bg-white p-4 rounded-xl border border-gray-200 mb-6">
+            <input
+              type="text"
+              placeholder="Search resources..."
+              className="w-full md:w-auto flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            />
+            <select className="w-full md:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm">
               <option>All Categories</option>
             </select>
-            <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            <select className="w-full md:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm">
               <option>All Types</option>
             </select>
           </div>
         </div>
+
         {/* Featured Resources */}
         <div className="mb-8">
           <div className="font-semibold text-gray-800 mb-3">Featured Resources</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {featuredResources.map((res, i) => (
               <ResourceCard key={i} resource={res} featured />
             ))}
           </div>
         </div>
+
         {/* All Resources */}
         <div>
-          <div className="font-semibold text-gray-800 mb-3">All Resources <span className="text-gray-400 font-normal">({allResources.length})</span></div>
+          <div className="font-semibold text-gray-800 mb-3">
+            All Resources <span className="text-gray-400 font-normal">({allResources.length})</span>
+          </div>
           <div className="flex flex-col gap-4">
             {allResources.map((res, i) => (
               <ResourceCard key={i} resource={res} />

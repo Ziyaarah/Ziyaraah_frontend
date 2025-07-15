@@ -1,4 +1,3 @@
-// src/components/TripDetails.jsx
 import React, { useEffect, useState } from "react";
 import OverviewTab from "./OverviewTab";
 import RitualsTab from "./RitualsTab";
@@ -7,7 +6,6 @@ import NotesTab from "./NotesTab";
 import TripHeader from "./TripHeader";
 import axios from "axios";
 import { useParams, useNavigate } from 'react-router-dom';
-
 
 const tabs = ["Overview", "Rituals", "Packing", "Notes"];
 
@@ -43,6 +41,7 @@ export default function TripDetails() {
                 return null;
         }
     };
+
     const handleBack = () => {
         // Try to go back in history, fallback to home if no history
         window.history.state?.idx > 0 ? navigate(-1) : navigate('/');
@@ -60,17 +59,17 @@ export default function TripDetails() {
                 Back to Trips
             </button>
 
-            <div className="p-4 max-w-6xl mx-auto">
+            <div className="p-4 max-w-full sm:max-w-6xl mx-auto">
                 {tripId && <TripHeader tripId={tripId} />}
-                <div className="flex space-x-4 mt-4 border-b pb-2">
+                <div className="flex flex-wrap sm:flex-nowrap space-x-4 mt-4 border-b pb-2">
                     {tabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 font-medium ${activeTab === tab
-                                    ? "border-b-2 border-blue-500 text-blue-600"
-                                    : "text-gray-600"
-                                }`}
+                            className={`px-4 py-2 font-medium text-sm sm:text-base ${activeTab === tab
+                                ? "border-b-2 border-blue-500 text-blue-600"
+                                : "text-gray-600"
+                            }`}
                         >
                             {tab}
                         </button>
